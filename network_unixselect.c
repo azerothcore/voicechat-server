@@ -172,7 +172,7 @@ int network_io_poll()
 	return 0;
 }
 
-void network_init_socket(network_socket *s, int fd, int buffersize)
+void network_init_socket(network_socket *s, socket_t fd, int buffersize)
 {
 	int flags;
 

@@ -22,11 +22,17 @@
 
 typedef int(*network_io_callback)(void*, int);
 
+#ifdef _WIN32
+typedef SOCKET socket_t;
+#else
+typedef int socket_t;
+#endif
+
 typedef struct
 {
 	network_io_callback event_handler;
 	network_io_callback write_handler;
-	int fd;
+	socket_t fd;
 	void* miscdata;
 
 	// not used with udp
@@ -51,7 +57,7 @@ int network_add_socket(network_socket * s);
 int network_remove_socket(network_socket * s);
 int default_tcp_write_handler(network_socket* s, int act);
 void network_shutdown();
-void network_init_socket(network_socket *s, int fd, int buffersize);		// bufsize = 0 with udp sockets
+void network_init_socket(network_socket *s, socket_t fd, int buffersize);		// bufsize = 0 with udp sockets
 void network_get_bandwidth_statistics(float* bwin, float* bwout);
 
 #endif

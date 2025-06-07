@@ -212,7 +212,7 @@ int network_io_poll()
 		{
 			FD_SET(g_fdMap[n]->fd, &read_set);
 			if( g_fdMap[n]->fd >= max_fd )
-				max_fd = g_fdMap[n]->fd + 1;
+				max_fd = (int)g_fdMap[n]->fd + 1;
 
 			if( g_fdMap[n]->outlen > 0 )
 				FD_SET(g_fdMap[n]->fd, &write_set);
@@ -277,7 +277,7 @@ int network_io_poll()
 	return 0;
 }
 
-void network_init_socket(network_socket *s, int fd, int buffersize)
+void network_init_socket(network_socket *s, socket_t fd, int buffersize)
 {
 	u_long arg;
 

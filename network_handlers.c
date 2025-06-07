@@ -29,7 +29,7 @@
 
 int voicechat_init_clientsocket()
 {
-	int fd;
+	socket_t fd;
 	int rv;
 	struct sockaddr_in addr;
 	network_socket * s;
@@ -83,7 +83,7 @@ int voicechat_init_clientsocket()
 
 int voicechat_init_serversocket()
 {
-	int fd;
+	socket_t fd;
 	int rv;
 	struct sockaddr_in addr;
 	network_socket * s;
@@ -141,7 +141,3 @@ int voicechat_init_serversocket()
 	// thats it.
 	return 0;
 }
-
-
-
-

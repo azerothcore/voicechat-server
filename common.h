@@ -38,6 +38,7 @@
 
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
+#include <inttypes.h>
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -105,7 +106,7 @@ static void start_thread(void(*faddress)(void*), void* parameter)
 	DWORD threadId;
 	hThread = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)faddress, parameter, 0, &threadId);
 	if( hThread == INVALID_HANDLE_VALUE )
-		printf("CreateThread for 0x%.8X failed.\n", faddress);
+		printf("CreateThread for 0x%" PRIxPTR " failed.\n", (uintptr_t)faddress);
 }
 
 #else

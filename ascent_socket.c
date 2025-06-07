@@ -95,10 +95,10 @@ void ascentsocket_send(ascent_socket *s, ascent_packet *p)
 int voicechat_ascent_listen_socket_read_handler(network_socket *s, int act)
 {
 	struct sockaddr_in new_address;
-	int slen = sizeof(struct sockaddr_in);
+	socklen_t slen = sizeof(struct sockaddr_in);
 	char buffer[100] = {'N','/','A'};
 	network_socket * ns;
-	int new_fd = accept(s->fd, (struct sockaddr*)&new_address, &slen);
+	socket_t new_fd = accept(s->fd, (struct sockaddr*)&new_address, &slen);
 
 	if( new_fd < 0 )
 	{
@@ -107,9 +107,8 @@ int voicechat_ascent_listen_socket_read_handler(network_socket *s, int act)
 		return -1;
 	}
 
-	//inet_ntop(AF_INET, &new_address.sin_addr, buffer, 100);
-	//log_write(DEBUG, "Incoming TCP connection from %s port %u", buffer, (int)ntohs(new_address.sin_port));
-	log_write(DEBUG, "Incoming TCP connection from %s port %u", inet_ntoa(new_address.sin_addr), (int)ntohs(new_address.sin_port));
+	inet_ntop(AF_INET, &new_address.sin_addr, buffer, sizeof(buffer));
+	log_write(DEBUG, "Incoming TCP connection from %s port %u", buffer, (int)ntohs(new_address.sin_port));
 
 	// create the socket structure.
 	ns = (network_socket*)vc_malloc(sizeof(network_socket));
