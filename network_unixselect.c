@@ -239,7 +239,7 @@ int network_read_data(network_socket * s, char* buffer, int buffer_len, struct s
 	if( read_addr != NULL )
 	{
 		// we're reading a udp socket.
-		int fromlen = sizeof(struct sockaddr);
+		socklen_t fromlen = sizeof(struct sockaddr);
 		rv = recvfrom( s->fd, buffer, buffer_len, 0, read_addr, &fromlen );
 	}
 	else
