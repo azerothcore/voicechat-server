@@ -29,115 +29,115 @@
 
 int voicechat_init_clientsocket()
 {
-	socket_t fd;
-	int rv;
-	struct sockaddr_in addr;
-	network_socket * s;
+    socket_t fd;
+    int rv;
+    struct sockaddr_in addr;
+    network_socket * s;
 
-	// convert the human-readable ip into byte form
-	memset(&addr, 0, sizeof(struct sockaddr_in));
-	rv = vc_inet_pton(AF_INET, g_serverConfig.udp_listen_host, &addr.sin_addr);
+    // convert the human-readable ip into byte form
+    memset(&addr, 0, sizeof(struct sockaddr_in));
+    rv = vc_inet_pton(AF_INET, g_serverConfig.udp_listen_host, &addr.sin_addr);
 
-	if( rv <= 0 )
-	{
-		log_write(ERROR, "FATAL: UDP listen host '%s' was non-parsable.", g_serverConfig.udp_listen_host);
-		return -1;
-	}
+    if( rv <= 0 )
+    {
+        log_write(ERROR, "FATAL: UDP listen host '%s' was non-parsable.", g_serverConfig.udp_listen_host);
+        return -1;
+    }
 
-	// create a socket
-	fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	if( fd < 0 )
-	{
-		log_write(ERROR, "FATAL: socket() for udp socket returned an error. %d.", fd);
-		return -1;
-	}
+    // create a socket
+    fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if( fd < 0 )
+    {
+        log_write(ERROR, "FATAL: socket() for udp socket returned an error. %d.", fd);
+        return -1;
+    }
 
-	// assign the port
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons( (unsigned short)g_serverConfig.udp_listen_port );
+    // assign the port
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons( (unsigned short)g_serverConfig.udp_listen_port );
 
-	// bind it
-	rv = bind(fd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in));
-	if( rv < 0 )
-	{
-		log_write(ERROR, "FATAL: UDP socket was unable to bind to specified host/port.");
-		return -1;
-	}
+    // bind it
+    rv = bind(fd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in));
+    if( rv < 0 )
+    {
+        log_write(ERROR, "FATAL: UDP socket was unable to bind to specified host/port.");
+        return -1;
+    }
 
-	// allocate the network_socket structure
-	s = (network_socket*)vc_malloc(sizeof(network_socket));
+    // allocate the network_socket structure
+    s = (network_socket*)vc_malloc(sizeof(network_socket));
 
-	// initialize structure
-	network_init_socket(s, fd, 0);
+    // initialize structure
+    network_init_socket(s, fd, 0);
 
-	// set the handler
-	s->event_handler = (network_io_callback)voicechat_client_socket_read_handler;
-	s->write_handler = NULL;
+    // set the handler
+    s->event_handler = (network_io_callback)voicechat_client_socket_read_handler;
+    s->write_handler = NULL;
 
-	// add it to the network map (platform-specific)
-	network_add_socket(s);
-	
-	// thats it.
-	return 0;
+    // add it to the network map (platform-specific)
+    network_add_socket(s);
+    
+    // thats it.
+    return 0;
 }
 
 int voicechat_init_serversocket()
 {
-	socket_t fd;
-	int rv;
-	struct sockaddr_in addr;
-	network_socket * s;
+    socket_t fd;
+    int rv;
+    struct sockaddr_in addr;
+    network_socket * s;
 
-	// convert the human-readable ip into byte form
-	memset(&addr, 0, sizeof(struct sockaddr_in));
-	rv = vc_inet_pton(AF_INET, g_serverConfig.tcp_listen_host, &addr.sin_addr);
+    // convert the human-readable ip into byte form
+    memset(&addr, 0, sizeof(struct sockaddr_in));
+    rv = vc_inet_pton(AF_INET, g_serverConfig.tcp_listen_host, &addr.sin_addr);
 
-	if( rv <= 0 )
-	{
-		log_write(ERROR, "FATAL: TCP listen host '%s' was non-parsable.", g_serverConfig.tcp_listen_host);
-		return -1;
-	}
+    if( rv <= 0 )
+    {
+        log_write(ERROR, "FATAL: TCP listen host '%s' was non-parsable.", g_serverConfig.tcp_listen_host);
+        return -1;
+    }
 
-	// create a socket
-	fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if( fd < 0 )
-	{
-		log_write(ERROR, "FATAL: socket() for tcp socket returned an error. %d.", fd);
-		return -1;
-	}
+    // create a socket
+    fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if( fd < 0 )
+    {
+        log_write(ERROR, "FATAL: socket() for tcp socket returned an error. %d.", fd);
+        return -1;
+    }
 
-	// assign the port
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons( (unsigned short)g_serverConfig.tcp_listen_port );
+    // assign the port
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons( (unsigned short)g_serverConfig.tcp_listen_port );
 
-	// bind it
-	rv = bind(fd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in));
-	if( rv < 0 )
-	{
-		log_write(ERROR, "FATAL: TCP socket was unable to bind to specified host/port.");
-		return -1;
-	}
+    // bind it
+    rv = bind(fd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in));
+    if( rv < 0 )
+    {
+        log_write(ERROR, "FATAL: TCP socket was unable to bind to specified host/port.");
+        return -1;
+    }
 
-	// listen.
-	if( listen(fd, 2) < 0 )
-	{
-		log_write(ERROR, "FATAL: TCP socket could not listen.");
-		return -1;
-	}
+    // listen.
+    if( listen(fd, 2) < 0 )
+    {
+        log_write(ERROR, "FATAL: TCP socket could not listen.");
+        return -1;
+    }
 
-	// allocate the network_socket structure
-	s = (network_socket*)vc_malloc(sizeof(network_socket));
+    // allocate the network_socket structure
+    s = (network_socket*)vc_malloc(sizeof(network_socket));
 
-	// initialize structure
-	network_init_socket(s, fd, 0);
+    // initialize structure
+    network_init_socket(s, fd, 0);
 
-	// set the handlers
-	s->event_handler = (network_io_callback)voicechat_ascent_listen_socket_read_handler;
-	s->write_handler = default_tcp_write_handler;
+    // set the handlers
+    s->event_handler = (network_io_callback)voicechat_ascent_listen_socket_read_handler;
+    s->write_handler = default_tcp_write_handler;
 
-	// add it to the network map (platform-specific)
-	network_add_socket(s);
+    // add it to the network map (platform-specific)
+    network_add_socket(s);
 
-	// thats it.
-	return 0;
+    // thats it.
+    return 0;
 }

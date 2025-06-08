@@ -68,53 +68,53 @@ typedef signed char int8;
 
 static void* vc_malloc(size_t sz)
 {
-	void* res;
-	if( (res = malloc(sz)) == NULL )
-		printf("!!! vc_malloc OF %u BYTES FAILED!\n", (int)sz);
+    void* res;
+    if( (res = malloc(sz)) == NULL )
+        printf("!!! vc_malloc OF %u BYTES FAILED!\n", (int)sz);
 
-	return res;
+    return res;
 }
 
 static int vc_inet_pton(int family, const char * ipstr, struct in_addr* daddress)
 {
-	int b1,b2,b3,b4;
-	char * p = (char*)daddress;
-	if( sscanf(ipstr, "%u.%u.%u.%u", &b1, &b2, &b3, &b4) != 4 )
-		return 0;
+    int b1,b2,b3,b4;
+    char * p = (char*)daddress;
+    if( sscanf(ipstr, "%u.%u.%u.%u", &b1, &b2, &b3, &b4) != 4 )
+        return 0;
 
-	p[0] = b4;
-	p[1] = b3;
-	p[2] = b2;
-	p[3] = b1;
-	return 1;
+    p[0] = b4;
+    p[1] = b3;
+    p[2] = b2;
+    p[3] = b1;
+    return 1;
 }
 
 static void vc_sleep(int ms)
 {
 #ifdef WIN32
-	Sleep(ms);
+    Sleep(ms);
 #else
-	usleep(ms*1000);
-#endif	
+    usleep(ms*1000);
+#endif    
 }
 
 // Thread starter
 #ifdef WIN32
 static void start_thread(void(*faddress)(void*), void* parameter)
 {
-	HANDLE hThread;
-	DWORD threadId;
-	hThread = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)faddress, parameter, 0, &threadId);
-	if( hThread == INVALID_HANDLE_VALUE )
-		printf("CreateThread for 0x%" PRIxPTR " failed.\n", (uintptr_t)faddress);
+    HANDLE hThread;
+    DWORD threadId;
+    hThread = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)faddress, parameter, 0, &threadId);
+    if( hThread == INVALID_HANDLE_VALUE )
+        printf("CreateThread for 0x%" PRIxPTR " failed.\n", (uintptr_t)faddress);
 }
 
 #else
 static void start_thread(void(*faddress)(void*), void* parameter)
 {
-	pthread_t p;
-	if( pthread_create(&p, NULL, ((void*(*)(void*))faddress), parameter) < 0 )
-		printf("thread_create() for 0x%" PRIxPTR " failed.errno: %u\n", (uintptr_t)faddress, errno);
+    pthread_t p;
+    if( pthread_create(&p, NULL, ((void*(*)(void*))faddress), parameter) < 0 )
+        printf("thread_create() for 0x%" PRIxPTR " failed.errno: %u\n", (uintptr_t)faddress, errno);
 }
 
 #endif
