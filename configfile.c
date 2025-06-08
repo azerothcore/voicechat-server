@@ -19,6 +19,7 @@
 
 #include "configfile.h"
 #include "log.h"
+#include <ctype.h>
 
 enum server_config_types
 {
