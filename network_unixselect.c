@@ -45,16 +45,17 @@ int network_init()
 }
 
 // default tcp nonblocking write handler
-int default_tcp_write_handler(network_socket* s, int act)
+int default_tcp_write_handler(void* s, int act)
 {
+	network_socket* sock = (network_socket*)s;
 	int rv;
 
 	// no more data
-	if( !s->outlen )
+	if( !sock->outlen )
 		return 0;
 
 	// try to push out nonblocking data
-	rv = send( s->fd, s->outbuffer, s->outlen, 0 );
+	rv = send(sock->fd, sock->outbuffer, sock->outlen, 0 );
 
 	// error happened
 	if( rv <= 0 )
@@ -64,12 +65,12 @@ int default_tcp_write_handler(network_socket* s, int act)
 	g_bytesRecvTotal += rv;
 
 	// move the bytes around
-	if( rv == s->outlen )
-		s->outlen = 0;
+	if( rv == sock->outlen )
+		sock->outlen = 0;
 	else
 	{
-		s->outlen -= rv;
-		memmove(&s->outbuffer[rv], s->outbuffer, s->outlen);
+		sock->outlen -= rv;
+		memmove(&sock->outbuffer[rv], sock->outbuffer, sock->outlen);
 	}
 
 	// ok!

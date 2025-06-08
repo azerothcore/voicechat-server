@@ -408,15 +408,16 @@ static vc_handler vc_handler_table[VOICECHAT_NUM_OPCODES] = {
 };
 
 // client reader
-int voicechat_ascent_socket_read_handler(network_socket *s, int act)
+int voicechat_ascent_socket_read_handler(void *s, int act)
 {
-	ascent_socket * mysock = (ascent_socket*)s->miscdata;
+	network_socket* sock = (network_socket*)s;
+	ascent_socket * mysock = (ascent_socket*)sock->miscdata;
 	uint16 opcode;
 	uint16 len;
 	int readcount;
 	ascent_packet * pck;
 
-	if( s->miscdata == NULL )
+	if(sock->miscdata == NULL )
 		return -1;
 
 	if( act == IOEVENT_ERROR )
@@ -425,10 +426,10 @@ int voicechat_ascent_socket_read_handler(network_socket *s, int act)
 		return -1;			// network code will clean up s pointer
 	}
 
-	readcount = network_read_data(s, &mysock->read_buf[mysock->read_buf_len], mysock->read_buf_sz - mysock->read_buf_len, NULL);
+	readcount = network_read_data(sock, &mysock->read_buf[mysock->read_buf_len], mysock->read_buf_sz - mysock->read_buf_len, NULL);
 	if( readcount <= 0 )
 	{
-		log_write(DEBUG, "ascent socket %u failed reading. probably dead.", s->fd);
+		log_write(DEBUG, "ascent socket %u failed reading. probably dead.", sock->fd);
 		// channel_delete_by_owner(mysock);
 		ascentsocket_free(mysock);
 		return -1;

@@ -55,7 +55,7 @@ int network_read_data(network_socket * s, char* buffer, int buffer_len, struct s
 int network_close(network_socket * s);
 int network_add_socket(network_socket * s);
 int network_remove_socket(network_socket * s);
-int default_tcp_write_handler(network_socket* s, int act);
+int default_tcp_write_handler(void* s, int act);
 void network_shutdown();
 void network_init_socket(network_socket *s, socket_t fd, int buffersize);		// bufsize = 0 with udp sockets
 void network_get_bandwidth_statistics(float* bwin, float* bwout);

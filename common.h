@@ -31,6 +31,7 @@
 #include <math.h>
 #include <assert.h>
 #include <stdarg.h>
+#include <inttypes.h>
 
 #ifdef HAVE_CONFIG_H
 #include "../../config.h"
@@ -38,7 +39,6 @@
 
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
-#include <inttypes.h>
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -114,7 +114,7 @@ static void start_thread(void(*faddress)(void*), void* parameter)
 {
 	pthread_t p;
 	if( pthread_create(&p, NULL, ((void*(*)(void*))faddress), parameter) < 0 )
-		printf("thread_create() for 0x%.8X failed. errno: %u\n", faddress, errno);
+		printf("thread_create() for 0x%.8X failed. errno: %u\n", (uintptr_t)faddress, errno);
 }
 
 #endif
