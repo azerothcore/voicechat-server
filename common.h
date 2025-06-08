@@ -114,7 +114,7 @@ static void start_thread(void(*faddress)(void*), void* parameter)
 {
 	pthread_t p;
 	if( pthread_create(&p, NULL, ((void*(*)(void*))faddress), parameter) < 0 )
-		printf("thread_create() for" PRIxPTR " failed.errno: %u\n", (uintptr_t)faddress, errno);
+		printf("thread_create() for 0x%" PRIxPTR " failed.errno: %u\n", (uintptr_t)faddress, errno);
 }
 
 #endif
