@@ -29,7 +29,7 @@
 
 int voicechat_init_clientsocket()
 {
-	int fd;
+	socket_t fd;
 	int rv;
 	struct sockaddr_in addr;
 	network_socket * s;
@@ -71,7 +71,7 @@ int voicechat_init_clientsocket()
 	network_init_socket(s, fd, 0);
 
 	// set the handler
-	s->event_handler = voicechat_client_socket_read_handler;
+	s->event_handler = (network_io_callback)voicechat_client_socket_read_handler;
 	s->write_handler = NULL;
 
 	// add it to the network map (platform-specific)
@@ -83,7 +83,7 @@ int voicechat_init_clientsocket()
 
 int voicechat_init_serversocket()
 {
-	int fd;
+	socket_t fd;
 	int rv;
 	struct sockaddr_in addr;
 	network_socket * s;
@@ -132,7 +132,7 @@ int voicechat_init_serversocket()
 	network_init_socket(s, fd, 0);
 
 	// set the handlers
-	s->event_handler = voicechat_ascent_listen_socket_read_handler;
+	s->event_handler = (network_io_callback)voicechat_ascent_listen_socket_read_handler;
 	s->write_handler = default_tcp_write_handler;
 
 	// add it to the network map (platform-specific)
@@ -141,7 +141,3 @@ int voicechat_init_serversocket()
 	// thats it.
 	return 0;
 }
-
-
-
-

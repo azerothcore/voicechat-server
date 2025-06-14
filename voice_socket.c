@@ -161,7 +161,7 @@ int voicechat_client_socket_read_handler(network_socket *s, int act)
 	uint16 channel_id;
 	uint8 user_id;
 	uint32 header;
-	uint16 frameNumber;
+	/*uint16 frameNumber;*/ // Currently unused
 	int i;
 
 	voice_channel * chn;
@@ -185,7 +185,9 @@ int voicechat_client_socket_read_handler(network_socket *s, int act)
 		return 0;
 	}
 
-	log_write(DEBUG, "udp socket got %d bytes from address %s\n", bytes, inet_ntoa(read_address.sin_addr));
+	char ip_buffer[INET_ADDRSTRLEN];
+	inet_ntop(AF_INET, &read_address.sin_addr, ip_buffer, sizeof(ip_buffer));
+	log_write(DEBUG, "udp socket got %d bytes from address %s\n", bytes, ip_buffer);
 	channel_id = *(uint16*)(&buffer[5]);
 	user_id = buffer[4];
 	//dumphex(buffer, bytes);
@@ -199,13 +201,17 @@ int voicechat_client_socket_read_handler(network_socket *s, int act)
 	log_write(DEBUG, "channel %u userid %u\n", (int)channel_id, (int)user_id);
 	if( chn == NULL )
 	{
-		log_write(DEBUG, "%s udp client sent invalid voice channel.", inet_ntoa(read_address.sin_addr));
+		char ip_buf1[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &read_address.sin_addr, ip_buf1, sizeof(ip_buf1));
+		log_write(DEBUG, "%s udp client sent invalid voice channel.", ip_buf1);
 		return 0;
 	}
 
 	if( user_id >= chn->member_slots )
 	{
-		log_write(DEBUG, "%s udp client sent out of range user id.", inet_ntoa(read_address.sin_addr));
+		char ip_buf2[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &read_address.sin_addr, ip_buf2, sizeof(ip_buf2));
+		log_write(DEBUG, "%s udp client sent out of range user id.", ip_buf2);
 		return 0;
 	}
 
@@ -216,14 +222,19 @@ int voicechat_client_socket_read_handler(network_socket *s, int act)
 	{
 		if( memb->voiced && memcmp(&memb->client_address, &read_address, sizeof(struct sockaddr)) != 0 )
 		{
-			log_write(DEBUG, "%s udp client is sending a different read address. should be %s", inet_ntoa(read_address.sin_addr), inet_ntoa(memb->client_address.sin_addr));
+			char ip_buf3a[INET_ADDRSTRLEN], ip_buf3b[INET_ADDRSTRLEN];
+			inet_ntop(AF_INET, &read_address.sin_addr, ip_buf3a, sizeof(ip_buf3a));
+			inet_ntop(AF_INET, &memb->client_address.sin_addr, ip_buf3b, sizeof(ip_buf3b));
+			log_write(DEBUG, "%s udp client is sending a different read address. should be %s", ip_buf3a, ip_buf3b);
 		}
 
         if (memb->enabled == 0)
             return 0;
 
 		memcpy(&memb->client_address, &read_address, sizeof(struct sockaddr));
-		log_write(DEBUG, "client %u address set to %s\n", (int)user_id, inet_ntoa(chn->members[user_id].client_address.sin_addr));
+		char ip_buf4[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &chn->members[user_id].client_address.sin_addr, ip_buf4, sizeof(ip_buf4));
+		log_write(DEBUG, "client %u address set to %s\n", (int)user_id, ip_buf4);
 	}
 	else
 	{
@@ -238,7 +249,9 @@ int voicechat_client_socket_read_handler(network_socket *s, int act)
 			
 			if( network_write_data( s, buffer, bytes, (struct sockaddr*)&chn->members[i].client_address ) < 0 )
 			{
-				log_write(ERROR, "network_write_data to UDP client %s failed.", inet_ntoa(chn->members[i].client_address.sin_addr));
+				char ip_buf5[INET_ADDRSTRLEN];
+				inet_ntop(AF_INET, &chn->members[i].client_address.sin_addr, ip_buf5, sizeof(ip_buf5));
+				log_write(ERROR, "network_write_data to UDP client %s failed.", ip_buf5);
 			}
 		}
 	}

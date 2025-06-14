@@ -31,6 +31,7 @@
 #include <math.h>
 #include <assert.h>
 #include <stdarg.h>
+#include <inttypes.h>
 
 #ifdef HAVE_CONFIG_H
 #include "../../config.h"
@@ -105,7 +106,7 @@ static void start_thread(void(*faddress)(void*), void* parameter)
 	DWORD threadId;
 	hThread = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)faddress, parameter, 0, &threadId);
 	if( hThread == INVALID_HANDLE_VALUE )
-		printf("CreateThread for 0x%.8X failed.\n", faddress);
+		printf("CreateThread for 0x%" PRIxPTR " failed.\n", (uintptr_t)faddress);
 }
 
 #else
@@ -113,7 +114,7 @@ static void start_thread(void(*faddress)(void*), void* parameter)
 {
 	pthread_t p;
 	if( pthread_create(&p, NULL, ((void*(*)(void*))faddress), parameter) < 0 )
-		printf("thread_create() for 0x%.8X failed. errno: %u\n", faddress, errno);
+		printf("thread_create() for 0x%" PRIxPTR " failed.errno: %u\n", (uintptr_t)faddress, errno);
 }
 
 #endif

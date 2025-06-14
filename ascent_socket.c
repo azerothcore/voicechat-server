@@ -95,10 +95,10 @@ void ascentsocket_send(ascent_socket *s, ascent_packet *p)
 int voicechat_ascent_listen_socket_read_handler(network_socket *s, int act)
 {
 	struct sockaddr_in new_address;
-	int slen = sizeof(struct sockaddr_in);
+	socklen_t slen = sizeof(struct sockaddr_in);
 	char buffer[100] = {'N','/','A'};
 	network_socket * ns;
-	int new_fd = accept(s->fd, (struct sockaddr*)&new_address, &slen);
+	socket_t new_fd = accept(s->fd, (struct sockaddr*)&new_address, &slen);
 
 	if( new_fd < 0 )
 	{
@@ -107,9 +107,8 @@ int voicechat_ascent_listen_socket_read_handler(network_socket *s, int act)
 		return -1;
 	}
 
-	//inet_ntop(AF_INET, &new_address.sin_addr, buffer, 100);
-	//log_write(DEBUG, "Incoming TCP connection from %s port %u", buffer, (int)ntohs(new_address.sin_port));
-	log_write(DEBUG, "Incoming TCP connection from %s port %u", inet_ntoa(new_address.sin_addr), (int)ntohs(new_address.sin_port));
+	inet_ntop(AF_INET, &new_address.sin_addr, buffer, sizeof(buffer));
+	log_write(DEBUG, "Incoming TCP connection from %s port %u", buffer, (int)ntohs(new_address.sin_port));
 
 	// create the socket structure.
 	ns = (network_socket*)vc_malloc(sizeof(network_socket));
@@ -409,15 +408,16 @@ static vc_handler vc_handler_table[VOICECHAT_NUM_OPCODES] = {
 };
 
 // client reader
-int voicechat_ascent_socket_read_handler(network_socket *s, int act)
+int voicechat_ascent_socket_read_handler(void *s, int act)
 {
-	ascent_socket * mysock = (ascent_socket*)s->miscdata;
+	network_socket* sock = (network_socket*)s;
+	ascent_socket * mysock = (ascent_socket*)sock->miscdata;
 	uint16 opcode;
 	uint16 len;
 	int readcount;
 	ascent_packet * pck;
 
-	if( s->miscdata == NULL )
+	if(sock->miscdata == NULL )
 		return -1;
 
 	if( act == IOEVENT_ERROR )
@@ -426,10 +426,10 @@ int voicechat_ascent_socket_read_handler(network_socket *s, int act)
 		return -1;			// network code will clean up s pointer
 	}
 
-	readcount = network_read_data(s, &mysock->read_buf[mysock->read_buf_len], mysock->read_buf_sz - mysock->read_buf_len, NULL);
+	readcount = network_read_data(sock, &mysock->read_buf[mysock->read_buf_len], mysock->read_buf_sz - mysock->read_buf_len, NULL);
 	if( readcount <= 0 )
 	{
-		log_write(DEBUG, "ascent socket %u failed reading. probably dead.", s->fd);
+		log_write(DEBUG, "ascent socket %u failed reading. probably dead.", sock->fd);
 		// channel_delete_by_owner(mysock);
 		ascentsocket_free(mysock);
 		return -1;
