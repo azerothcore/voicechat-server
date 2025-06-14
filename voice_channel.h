@@ -22,27 +22,27 @@
 
 typedef struct
 {
-    struct sockaddr_in client_address;
-    uint8 enabled;
-    uint8 voiced;
-    uint8 muted;
+	struct sockaddr_in client_address;
+	uint8 enabled;
+	uint8 voiced;
+	uint8 muted;
 } voice_channel_member;
 
 typedef struct  
 {
-    int channel_id;
-    int member_count;
-    int member_slots;
-    voice_channel_member * members;
-    void* server_owner;
+	int channel_id;
+	int member_count;
+	int member_slots;
+	voice_channel_member * members;
+	void* server_owner;
 } voice_channel;
 
 enum VOICE_CHANNEL_TYPE
 {
-    VOICE_CHANNEL_TYPE_CHANNEL = 0,
-    VOICE_CHANNEL_TYPE_PARTY   = 2,
-    VOICE_CHANNEL_TYPE_RAID    = 3,
-    VOICE_CHANNEL_TYPE_COUNT   = 4,
+	VOICE_CHANNEL_TYPE_CHANNEL			= 0,
+	VOICE_CHANNEL_TYPE_PARTY			= 2,
+	VOICE_CHANNEL_TYPE_RAID				= 3,
+	VOICE_CHANNEL_TYPE_COUNT			= 4,
 };
 
 void voice_channel_init();

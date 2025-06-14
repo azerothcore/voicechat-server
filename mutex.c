@@ -34,12 +34,12 @@ static pthread_mutexattr_t attr;
 
 void mutex_initialize(mutex* mut)
 {
-    if(!attr_init)
-    {
-        pthread_mutexattr_init(&attr);
-        pthread_mutexattr_settype(&attr, recursive_mutex_flag);
-        attr_init= 1;
-    }
+	if(!attr_init)
+	{
+		pthread_mutexattr_init(&attr);
+		pthread_mutexattr_settype(&attr, recursive_mutex_flag);
+		attr_init= 1;
+	}
 }
 
 #endif

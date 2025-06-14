@@ -28,122 +28,122 @@ voice_channel * g_voiceChannels[MAX_CHANNEL];
 
 int voice_channel_generate_id()
 {
-    int n;
-    for( n = 1; n < MAX_CHANNEL; ++n )
-    {
-        if( g_voiceChannels[n] == NULL )
-            return n;
-    }
+	int n;
+	for( n = 1; n < MAX_CHANNEL; ++n )
+	{
+		if( g_voiceChannels[n] == NULL )
+			return n;
+	}
 
-    return -1;
+	return -1;
 }
 
 /*int get_channel_count()
 {
-    int n;
-    int count = 0;
-    for( n = 1; n < MAX_CHANNEL; ++n )
-    {
-        if( g_voiceChannels[n] != NULL )
-            ++count;
-    }
+	int n;
+	int count = 0;
+	for( n = 1; n < MAX_CHANNEL; ++n )
+	{
+		if( g_voiceChannels[n] != NULL )
+			++count;
+	}
 
-    return count;
+	return count;
 }*/
 
 void voice_channel_init()
 {
-    memset(g_voiceChannels, 0, sizeof(voice_channel*)*MAX_CHANNEL);
+	memset(g_voiceChannels, 0, sizeof(voice_channel*)*MAX_CHANNEL);
 }
 
 voice_channel * voice_channel_create(int channeltype, void* server_owner)
 {
-    int cid;
-    int n;
-    voice_channel * chn;
-    static int channelslots[VOICE_CHANNEL_TYPE_COUNT] = { 250, 40, 40,     40 };
-    //                                                    channel party   raid
-    //             we use 40 slots for a party here because it can be expanded
+	int cid;
+	int n;
+	voice_channel * chn;
+	static int channelslots[VOICE_CHANNEL_TYPE_COUNT] = { 250, 40, 40,     40 };
+	//                                                    channel party   raid
+	//             we use 40 slots for a party here because it can be expanded
 
-    cid = voice_channel_generate_id();
-    if( cid < 0 )
-    {
-        log_write(ERROR, "We are out of channel id's. Maybe you need to run more voice servers?");
-        return NULL;
-    }
+	cid = voice_channel_generate_id();
+	if( cid < 0 )
+	{
+		log_write(ERROR, "We are out of channel id's. Maybe you need to run more voice servers?");
+		return NULL;
+	}
 
-    // apply
-    chn = (voice_channel*)vc_malloc(sizeof(voice_channel));
-    g_voiceChannels[cid] = chn;
+	// apply
+	chn = (voice_channel*)vc_malloc(sizeof(voice_channel));
+	g_voiceChannels[cid] = chn;
 
-    // initialize
-    chn->member_slots = channelslots[channeltype] + 1;
-    chn->member_count = 0;
-    chn->channel_id = cid;
-    chn->members = (voice_channel_member*)vc_malloc(sizeof(voice_channel_member) * chn->member_slots);
-    chn->server_owner = server_owner;
+	// initialize
+	chn->member_slots = channelslots[channeltype] + 1;
+	chn->member_count = 0;
+	chn->channel_id = cid;
+	chn->members = (voice_channel_member*)vc_malloc(sizeof(voice_channel_member) * chn->member_slots);
+	chn->server_owner = server_owner;
 
-    for( n = 0; n < chn->member_slots; ++n )
-    {
-        chn->members[n].enabled = 0;
-        chn->members[n].voiced = 0;
-        chn->members[n].muted = 0;
-    }
+	for( n = 0; n < chn->member_slots; ++n )
+	{
+		chn->members[n].enabled = 0;
+		chn->members[n].voiced = 0;
+		chn->members[n].muted = 0;
+	}
 
-    log_write(DEBUG, "channel %u is being created for type %u", (int)cid, (int)channeltype);
+	log_write(DEBUG, "channel %u is being created for type %u", (int)cid, (int)channeltype);
 
-    return chn;
+	return chn;
 }
 
 int voice_channel_remove(int channelid)
 {
-    voice_channel * chn;
-    if( channelid >= MAX_CHANNEL )
-        return -1;
+	voice_channel * chn;
+	if( channelid >= MAX_CHANNEL )
+		return -1;
 
-    if( (chn = g_voiceChannels[channelid]) == NULL )
-        return -1;
+	if( (chn = g_voiceChannels[channelid]) == NULL )
+		return -1;
 
     int count = 0;
 
-    for (int n = 0; n < chn->member_slots; ++n)
-    {
-        if (chn->members[n].enabled == 0 && chn->members[n].voiced == 0 && chn->members[n].muted == 0)
-            continue;
+	for (int n = 0; n < chn->member_slots; ++n)
+	{
+		if (chn->members[n].enabled == 0 && chn->members[n].voiced == 0 && chn->members[n].muted == 0)
+			continue;
 
         if (chn->members[n].voiced == 1)
             count++;
 
-        log_write(DEBUG, "channel id %u slot %u is now disabled.", channelid, n);
-        chn->members[n].enabled = 0;
-        chn->members[n].voiced = 0;
-        chn->members[n].muted = 0;
-    }
+		log_write(DEBUG, "channel id %u slot %u is now disabled.", channelid, n);
+		chn->members[n].enabled = 0;
+		chn->members[n].voiced = 0;
+		chn->members[n].muted = 0;
+	}
 
-    free(chn->members);
-    free(chn);
-    g_voiceChannels[channelid] = NULL;
-    return count;
+	free(chn->members);
+	free(chn);
+	g_voiceChannels[channelid] = NULL;
+	return count;
 }
 
 voice_channel * voice_channel_get(int channelid)
 {
-    if( channelid >= MAX_CHANNEL )
-        return NULL;
+	if( channelid >= MAX_CHANNEL )
+		return NULL;
 
-    return g_voiceChannels[channelid];
+	return g_voiceChannels[channelid];
 }
 
 int voice_remove_channels(void* socket_ptr)
 {
-    int n;
+	int n;
     int count = 0;
-    for( n = 0; n < MAX_CHANNEL; ++n )
-    {
-        if( g_voiceChannels[n] != NULL && g_voiceChannels[n]->server_owner == socket_ptr )
+	for( n = 0; n < MAX_CHANNEL; ++n )
+	{
+		if( g_voiceChannels[n] != NULL && g_voiceChannels[n]->server_owner == socket_ptr )
         {
             count += voice_channel_remove(n);
         }
-    }
+	}
     return count;
 }
